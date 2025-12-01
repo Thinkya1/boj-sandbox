@@ -1,3 +1,4 @@
 server:
-  address: 8099
+  address: localhost
+  port: 8099
 
