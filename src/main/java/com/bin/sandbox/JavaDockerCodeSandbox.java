@@ -107,7 +107,7 @@ public class JavaDockerCodeSandbox extends JavaCodeSandboxTemplate {
         hostConfig.withMemory(100 * 1000 * 1000L);
         hostConfig.withMemorySwap(0L);
         hostConfig.withCpuCount(1L);
-        hostConfig.withSecurityOpts(Arrays.asList("seccomp=unconfined"));  // 替代原来的中文配置字符串
+        hostConfig.withSecurityOpts(Arrays.asList("seccomp=unconfined"));
         hostConfig.setBinds(new Bind(userCodeParentPath, new Volume("/app")));
 
         CreateContainerResponse createContainerResponse = containerCmd
@@ -179,22 +179,18 @@ public class JavaDockerCodeSandbox extends JavaCodeSandboxTemplate {
                     System.out.println("内存占用：" + statistics.getMemoryStats().getUsage());
                     maxMemory[0] = Math.max(statistics.getMemoryStats().getUsage(), maxMemory[0]);
                 }
-
                 @Override
                 public void close() throws IOException {
 
                 }
-
                 @Override
                 public void onStart(Closeable closeable) {
 
                 }
-
                 @Override
                 public void onError(Throwable throwable) {
 
                 }
-
                 @Override
                 public void onComplete() {
 

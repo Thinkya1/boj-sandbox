@@ -10,6 +10,7 @@ import com.bin.sandbox.model.ExecuteCodeResponse;
 import com.bin.sandbox.model.ExecuteMessage;
 import com.bin.sandbox.model.JudgeInfo;
 import com.bin.sandbox.utils.ProcessUtils;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-
+@Component
 public class JavaNativeCodeSandbox implements CodeSandbox {
 
     private static final String GLOBAL_CODE_DIR_NAME = "tmpCode";
