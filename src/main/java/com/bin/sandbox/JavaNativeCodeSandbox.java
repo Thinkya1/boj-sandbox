@@ -63,7 +63,7 @@ public class JavaNativeCodeSandbox implements CodeSandbox {
         //文件目录
         String globalCodePathName = userDir + File.separator + GLOBAL_CODE_DIR_NAME;
         //判断项目是否存在，不存在创建
-        if (FileUtil.exist(globalCodePathName)) {
+        if (!FileUtil.exist(globalCodePathName)) {
             FileUtil.mkdir(globalCodePathName);
         }
 
@@ -80,6 +80,13 @@ public class JavaNativeCodeSandbox implements CodeSandbox {
             Process compileProcess = Runtime.getRuntime().exec(compileCmd);
             ExecuteMessage executeMessage = ProcessUtils.runProcessAndGetMessage(compileProcess, "编译");
             System.out.println(executeMessage);
+            if (executeMessage.getExitValue() != null && executeMessage.getExitValue() != 0) {
+                String errorMessage = executeMessage.getErrorMessage();
+                if (StrUtil.isBlank(errorMessage)) {
+                    errorMessage = "编译失败";
+                }
+                return getErrorResponse(new RuntimeException(errorMessage));
+            }
         } catch (Exception e) {
             return getErrorResponse(e);
         }
