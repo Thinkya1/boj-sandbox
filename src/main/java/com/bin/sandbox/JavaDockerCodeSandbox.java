@@ -63,6 +63,8 @@ public class JavaDockerCodeSandbox extends JavaCodeSandboxTemplate {
                 .build();
 
         DockerClient dockerClient = DockerClientBuilder.getInstance(config).build();
+        String containerId = null;
+        try {
 
         //拉取镜像
         String image = "openjdk:8u342-jre-slim-buster";
@@ -120,7 +122,7 @@ public class JavaDockerCodeSandbox extends JavaCodeSandboxTemplate {
                 .withTty(true)
                 .exec();
 
-        String containerId = createContainerResponse.getId();
+        containerId = createContainerResponse.getId();
 
         // 启动容器
         dockerClient.startContainerCmd(containerId).exec();
@@ -196,7 +198,6 @@ public class JavaDockerCodeSandbox extends JavaCodeSandboxTemplate {
 
                 }
             });
-            statsCmd.exec(statisticsResultCallback);
             try {
                 stopWatch.start();
                 dockerClient.execStartCmd(execId)
@@ -219,6 +220,22 @@ public class JavaDockerCodeSandbox extends JavaCodeSandboxTemplate {
             executeMessageList.add(executeMessage);
         }
         return executeMessageList;
+        } finally {
+            if (containerId != null) {
+                try {
+                    dockerClient.stopContainerCmd(containerId).exec();
+                } catch (Exception ignored) {
+                }
+                try {
+                    dockerClient.removeContainerCmd(containerId).withForce(true).exec();
+                } catch (Exception ignored) {
+                }
+            }
+            try {
+                dockerClient.close();
+            } catch (Exception ignored) {
+            }
+        }
     }
 
     public ExecuteCodeResponse getOutputResponse(List<ExecuteMessage> executeMessageList) {

@@ -27,7 +27,9 @@ public class JavaNativeCodeSandbox implements CodeSandbox {
 
     private static final long TIME_OUT = 5000L;
 
-    private static final String SECURITY_MANAGER_PATH = "C:\\Users\\28561\\Desktop\\JAVA\\sandbox\\src\\main\\resources\\security";
+    private static final String SECURITY_MANAGER_PATH = System.getProperty("user.dir")
+            + File.separator + "src" + File.separator + "main" + File.separator + "resources"
+            + File.separator + "security";
 
     private static final String SECURITY_MANAGER_CLASS_NAME = "MySecurityManager";
 
@@ -58,6 +60,10 @@ public class JavaNativeCodeSandbox implements CodeSandbox {
     public ExecuteCodeResponse executeCode(ExecuteCodeRequest executeCodeRequest) {
         List<String> inputList = executeCodeRequest.getInputList();
         String code = executeCodeRequest.getCode();
+        if (inputList == null || inputList.isEmpty()) {
+            inputList = new ArrayList<>();
+            inputList.add("");
+        }
 
         String userDir = System.getProperty("user.dir");
         //文件目录
