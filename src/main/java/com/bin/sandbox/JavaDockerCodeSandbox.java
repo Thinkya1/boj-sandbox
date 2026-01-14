@@ -1,13 +1,11 @@
 package com.bin.sandbox;
 
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.StrUtil;
 import com.bin.sandbox.model.ExecuteCodeRequest;
 import com.bin.sandbox.model.ExecuteCodeResponse;
 import com.bin.sandbox.model.ExecuteMessage;
 import com.bin.sandbox.model.JudgeInfo;
-import com.bin.sandbox.utils.ProcessUtils;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.*;
@@ -31,12 +29,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.time.Duration;
 
-@Component
-public class JavaDockerCodeSandbox extends JavaCodeSandboxTemplate {
+@Component("javaDockerCodeSandBox")
+public class JavaDockerCodeSandbox extends CodeSandboxTemplate {
 
     private static final long TIME_OUT = 5000L;
     private static final long PULL_TIMEOUT = 5 * 60 * 1000L;

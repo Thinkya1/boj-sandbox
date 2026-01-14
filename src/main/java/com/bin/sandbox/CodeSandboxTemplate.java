@@ -19,7 +19,7 @@ import java.util.List;
  * Java 代码沙箱模板实现。
  */
 @Slf4j
-public abstract class JavaCodeSandboxTemplate implements CodeSandbox {
+public abstract class CodeSandboxTemplate implements CodeSandbox {
 
     private static final String GLOBAL_CODE_DIR_NAME = "tmpCode";
 
@@ -161,6 +161,7 @@ public abstract class JavaCodeSandboxTemplate implements CodeSandbox {
         if (outputList.size() == executeMessageList.size()) {
             executeCodeResponse.setStatus(1);
         }
+        System.out.println("当前输出: " + outputList);
         executeCodeResponse.setOutputList(outputList);
         JudgeInfo judgeInfo = new JudgeInfo();
         judgeInfo.setTime(maxTime);
