@@ -129,7 +129,7 @@ public abstract class CodeSandboxTemplate implements CodeSandbox {
                 System.out.println(executeMessage);
                 executeMessageList.add(executeMessage);
             } catch (Exception e) {
-                throw new RuntimeException("execution error", e);
+                throw new RuntimeException("执行错误", e);
             }
         }
         return executeMessageList;
