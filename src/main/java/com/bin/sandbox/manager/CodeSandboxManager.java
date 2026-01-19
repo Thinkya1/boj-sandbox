@@ -22,10 +22,12 @@ public final class CodeSandboxManager {
             codeSandbox = (CodeSandbox) SpringContextUtils.getBean("javaDockerCodeSandBox");
         } else if (LanguageConstant.PYTHON.equals(language)) {
             codeSandbox = (CodeSandbox) SpringContextUtils.getBean("pythonDockerCodeSandBox");
-        } else if (LanguageConstant.JAVASCRIPT.equals(language)) {
+        } else if (LanguageConstant.JAVASCRIPT.equals(language) || LanguageConstant.JS.equals(language)) {
             codeSandbox = (CodeSandbox) SpringContextUtils.getBean("jsDockerCodeSandBox");
         } else if (LanguageConstant.GCC.equals(language)) {
             codeSandbox = (CodeSandbox) SpringContextUtils.getBean("gccDockerCodeSandBox");
+        } else if (LanguageConstant.CPP.equals(language) || LanguageConstant.CPLUSPLUS.equals(language)) {
+            codeSandbox = (CodeSandbox) SpringContextUtils.getBean("cppDockerCodeSandBox");
         }
         ThrowUtils.throwIf(codeSandbox == null, "编程语言非法");
         return codeSandbox.executeCode(executeCodeRequest);
