@@ -1,5 +1,7 @@
 tmpCode
 HELP.md
+AGENTS.md
+TASK_CONTEXT.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
