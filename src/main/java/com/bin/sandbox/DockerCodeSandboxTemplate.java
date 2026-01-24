@@ -1,8 +1,11 @@
 package com.bin.sandbox;
 
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.StrUtil;
 import com.bin.sandbox.config.DockerClientFactory;
 import com.bin.sandbox.model.ExecResult;
+import com.bin.sandbox.model.ExecuteCodeRequest;
 import com.bin.sandbox.model.ExecuteCodeResponse;
 import com.bin.sandbox.model.ExecuteMessage;
 import com.bin.sandbox.model.JudgeInfo;
@@ -39,11 +42,81 @@ import java.util.concurrent.TimeUnit;
 /**
  * Docker 代码沙箱模板
  */
-public abstract class DockerCodeSandboxTemplate extends CodeSandboxTemplate {
+public abstract class DockerCodeSandboxTemplate implements CodeSandbox {
 
+    private static final String GLOBAL_CODE_DIR_NAME = "tmpCode";
+    private static final String GLOBAL_JAVA_CLASS_NAME = "Main.java";
     private static final long DEFAULT_RUN_TIMEOUT = 5000L;
     private static final long DEFAULT_COMPILE_TIMEOUT = 10000L;
     private static final long PULL_TIMEOUT = 5 * 60 * 1000L;
+
+    @Override
+    public ExecuteCodeResponse executeCode(ExecuteCodeRequest executeCodeRequest) {
+        List<String> inputList = executeCodeRequest.getInputList();
+        String code = executeCodeRequest.getCode();
+        if (inputList == null || inputList.isEmpty()) {
+            inputList = new ArrayList<>();
+            inputList.add("");
+        }
+
+        File userCodeFile = null;
+        try {
+            // 1. 保存用户代码到文件
+            userCodeFile = saveCodeToFile(code);
+
+            // 2. 编译代码为 class
+            ExecuteMessage compileFileExecuteMessage = compileFile(userCodeFile);
+            System.out.println(compileFileExecuteMessage);
+
+            // 3. 运行代码并收集输出
+            List<ExecuteMessage> executeMessageList = runFile(userCodeFile, inputList);
+
+            // 4. 汇总输出响应
+            return getOutputResponse(executeMessageList);
+        } finally {
+            // 5. 清理文件
+            if (userCodeFile != null) {
+                boolean deleted = deleteFile(userCodeFile);
+                if (!deleted) {
+                    System.err.println("删除文件失败, userCodeFilePath = " + userCodeFile.getAbsolutePath());
+                }
+            }
+        }
+    }
+
+    /**
+     * 保存用户代码到文件。
+     *
+     * @param code 用户代码
+     * @return 代码文件
+     */
+    public File saveCodeToFile(String code) {
+        String userDir = System.getProperty("user.dir");
+        String globalCodePathName = userDir + File.separator + GLOBAL_CODE_DIR_NAME;
+        if (!FileUtil.exist(globalCodePathName)) {
+            FileUtil.mkdir(globalCodePathName);
+        }
+
+        String userCodeParentPath = globalCodePathName + File.separator + UUID.randomUUID();
+        String userCodePath = userCodeParentPath + File.separator + GLOBAL_JAVA_CLASS_NAME;
+        return FileUtil.writeString(code, userCodePath, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * 删除文件。
+     *
+     * @param userCodeFile 代码文件
+     * @return 是否删除成功
+     */
+    public boolean deleteFile(File userCodeFile) {
+        if (userCodeFile.getParentFile() != null) {
+            String userCodeParentPath = userCodeFile.getParentFile().getAbsolutePath();
+            boolean del = FileUtil.del(userCodeParentPath);
+            System.out.println("删除" + (del ? "成功" : "失败"));
+            return del;
+        }
+        return true;
+    }
 
     /**
      * 获取镜像名
@@ -101,7 +174,6 @@ public abstract class DockerCodeSandboxTemplate extends CodeSandboxTemplate {
      * @param userCodeFile 代码文件
      * @return 编译信息
      */
-    @Override
     public ExecuteMessage compileFile(File userCodeFile) {
         String[] compileCommand = buildCompileCommand(userCodeFile);
         if (compileCommand == null || compileCommand.length == 0) {
@@ -151,7 +223,6 @@ public abstract class DockerCodeSandboxTemplate extends CodeSandboxTemplate {
      * @param inputList    输入列表
      * @return 执行信息列表
      */
-    @Override
     public List<ExecuteMessage> runFile(File userCodeFile, List<String> inputList) {
         String userCodeParentPath = userCodeFile.getParentFile().getAbsolutePath();
         DockerClient dockerClient = DockerClientFactory.createClient();
@@ -192,7 +263,6 @@ public abstract class DockerCodeSandboxTemplate extends CodeSandboxTemplate {
      * @param executeMessageList 执行信息列表
      * @return 输出响应
      */
-    @Override
     public ExecuteCodeResponse getOutputResponse(List<ExecuteMessage> executeMessageList) {
         ExecuteCodeResponse executeCodeResponse = new ExecuteCodeResponse();
         List<String> outputList = new ArrayList<>();
