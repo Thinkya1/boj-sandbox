@@ -523,11 +523,9 @@ public abstract class DockerCodeSandboxTemplate implements CodeSandbox {
     protected void cleanupContainer(DockerClient dockerClient, String containerId) {
         if (containerId != null) {
             try {
-                dockerClient.stopContainerCmd(containerId).exec();
-            } catch (Exception ignored) {
-            }
-            try {
-                dockerClient.removeContainerCmd(containerId).withForce(true).exec();
+                dockerClient.removeContainerCmd(containerId)
+                        .withForce(true)
+                        .exec();
             } catch (Exception ignored) {
             }
         }
