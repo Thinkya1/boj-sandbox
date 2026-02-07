@@ -73,6 +73,14 @@ public abstract class DockerCodeSandboxTemplate implements CodeSandbox {
 
             // 4. 汇总输出响应
             return getOutputResponse(executeMessageList);
+        } catch (Exception e) {
+            // 编译错误 / 沙箱内部异常，不应抛出 500，统一返回结构化响应
+            ExecuteCodeResponse executeCodeResponse = new ExecuteCodeResponse();
+            executeCodeResponse.setOutputList(new ArrayList<>());
+            executeCodeResponse.setMessage(e.getMessage());
+            executeCodeResponse.setStatus(2);
+            executeCodeResponse.setJudgeInfo(new JudgeInfo());
+            return executeCodeResponse;
         } finally {
             // 5. 清理文件
             if (userCodeFile != null) {
